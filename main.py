@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
 
-# Load pre-trained modle for face detection
+# Load pre-trained model for face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-# Load images of tesco workers for recognition
+# Load images of Tesco workers for recognition
 tesco_worker_images = {
     'Employee1': cv2.imread('employees/1.jpg', cv2.IMREAD_GRAYSCALE),
     'Employee2': cv2.imread('employees/2.jpg', cv2.IMREAD_GRAYSCALE),
@@ -13,8 +13,7 @@ tesco_worker_images = {
     'Employee5': cv2.imread('employees/5.jpg', cv2.IMREAD_GRAYSCALE),
 }
 
-
-# Function to recognize tesco worker based on uniform
+# Function to recognize Tesco worker based on uniform
 def recognize_tesco_worker(frame):
     # Convert to grayscale for face detection
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -27,7 +26,7 @@ def recognize_tesco_worker(frame):
         # Extract the face region
         face_roi = gray[y:y + h, x:x + w]
 
-        # Iterate through tesco worker images for template matching
+        # Iterate through Tesco worker images for template matching
         for name, template in tesco_worker_images.items():
             # Perform template matching
             result = cv2.matchTemplate(face_roi, template, cv2.TM_CCOEFF_NORMED)
@@ -46,9 +45,19 @@ def recognize_tesco_worker(frame):
 # Capture video from the default camera (you can modify this to use a specific video file)
 cap = cv2.VideoCapture(0)
 
+# Check if the video capture is successful
+if not cap.isOpened():
+    print("Error: Could not open camera.")
+    exit()
+
 while True:
     # Read a frame from the video capture
     ret, frame = cap.read()
+
+    # Check if the frame is read successfully
+    if not ret:
+        print("Error: Could not read frame.")
+        break
 
     # Call the recognition function
     frame_with_recognition = recognize_tesco_worker(frame)
