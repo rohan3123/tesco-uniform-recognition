@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import threading
 
 # Load pre-trained model for face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -42,35 +43,45 @@ def recognize_tesco_worker(frame):
 
     return frame
 
-# Capture video from the default camera (you can modify this to use a specific video file)
-cap = cv2.VideoCapture(0)
+# Function to run video capture and recognition in a separate thread
+def capture_and_recognize():
+    cap = cv2.VideoCapture(0)
 
-# Check if the video capture is successful
-if not cap.isOpened():
-    print("Error: Could not open camera.")
-    exit()
+    # Check if the video capture is successful
+    if not cap.isOpened():
+        print("Error: Could not open camera.")
+        return
 
-while True:
-    # Read a frame from the video capture
-    ret, frame = cap.read()
+    while True:
+        # Read a frame from the video capture
+        ret, frame = cap.read()
 
-    # Check if the frame is read successfully
-    if not ret:
-        print("Error: Could not read frame.")
-        break
+        # Check if the frame is read successfully
+        if not ret:
+            print("Error: Could not read frame.")
+            break
 
-    # Call the recognition function
-    frame_with_recognition = recognize_tesco_worker(frame)
+        # Call the recognition function
+        frame_with_recognition = recognize_tesco_worker(frame)
 
-    # Display the resulting frame
-    cv2.imshow('Tesco Worker Recognition', frame_with_recognition)
+        # Display the resulting frame
+        cv2.imshow('Tesco Worker Recognition', frame_with_recognition)
 
-    # Break the loop when 'q' key is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        # Break the loop when 'q' key is pressed
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-# Release the video capture object
-cap.release()
+    # Release the video capture object
+    cap.release()
 
-# Destroy all OpenCV windows
-cv2.destroyAllWindows()
+    # Destroy all OpenCV windows
+    cv2.destroyAllWindows()
+
+# Create a thread for video capture and recognition
+thread = threading.Thread(target=capture_and_recognize)
+
+# Start the thread
+thread.start()
+
+# Wait for the thread to finish
+thread.join()
